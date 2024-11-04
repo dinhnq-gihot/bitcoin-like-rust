@@ -10,5 +10,6 @@ extern crate sha256 as sha256_lib;
 use uint::construct_uint;
 
 construct_uint! {
+    #[derive(Serialize, Deserialize)]
     pub struct U256(4);
 }

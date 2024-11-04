@@ -4,8 +4,18 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chrono = { version = "0.4.38", features = ["serde"] }
 ciborium = "0.2.2"
 serde = { version = "1.0.198", features = ["derive"] }
 sha256 = "1.5.0"
 uint = "0.9.5"
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
+k256 = { version = "0.13.3", features = ["serde", "pem"] }
+ecdsa = { version = "0.16.9", features = [
+    "signing",
+    "verifying",
+    "serde",
+    "pem",
+] }
+hex = "0.4.3"
+rand = "0.8.5"
