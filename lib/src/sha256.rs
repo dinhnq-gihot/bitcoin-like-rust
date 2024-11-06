@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use sha256::digest;
 use std::fmt;
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub struct Hash(U256);
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
+pub struct Hash(pub U256);
 
 impl fmt::Display for Hash {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -38,5 +38,12 @@ impl Hash {
     // zero hash
     pub fn zero() -> Self {
         Self(U256::zero())
+    }
+
+    // convert to bytes
+    pub fn as_bytes(&self) -> [u8; 32] {
+        let mut bytes = vec![0u8; 32];
+        self.0.to_little_endian(&mut bytes);
+        bytes.as_slice().try_into().unwrap()
     }
 }
