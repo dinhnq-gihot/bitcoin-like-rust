@@ -20,3 +20,4 @@ ecdsa = { version = "0.16.9", features = [
 hex = "0.4.3"
 rand = "0.8.5"
 thiserror = "1.0.59"
+bigdecimal = "0.4.5"

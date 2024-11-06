@@ -15,7 +15,11 @@ use {
         util::MerkleRoot,
         U256,
     },
-    std::collections::HashMap,
+    bigdecimal::BigDecimal,
+    std::collections::{
+        HashMap,
+        HashSet,
+    },
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,8 +81,70 @@ impl Blockchain {
             // Verify all transactions in the block
             block.verify_transactions(self.block_height(), &self.utxos)?;
         }
+        // Remove transactions from mempool that are now in the block
+        let block_transactions = block
+            .transactions
+            .iter()
+            .map(|tx| tx.hash())
+            .collect::<HashSet<_>>();
+
+        self.mempool
+            .retain(|tx| !block_transactions.contains(&tx.hash()));
+
         self.blocks.push(block);
+
+        self.try_adjust_target();
         Ok(())
+    }
+
+    // try to adjust the target of the blockchain
+    pub fn try_adjust_target(&mut self) {
+        if self.blocks.is_empty() {
+            return;
+        }
+        if self.block_height() % crate::DIFFICULTY_UPDATE_INTERVAL != 0 {
+            return;
+        }
+
+        //measure the time it took to mine the last crate::DIFFICULTY_UPDATE_INTERVAL
+        // blocks with chrono
+        let start_time = self.blocks
+            [self.blocks.len() - crate::DIFFICULTY_UPDATE_INTERVAL as usize]
+            .header
+            .timestamp;
+        let end_time = self.blocks.last().unwrap().header.timestamp;
+        let time_diff = end_time - start_time;
+
+        //convert time_diff to seconds
+        let time_diff_seconds = time_diff.num_seconds();
+        // calcualte the ideal number of seconds
+        let target_seconds = crate::IDEAL_BLOCK_TIME * crate::DIFFICULTY_UPDATE_INTERVAL;
+        // multiply the current target by actual time didvided by ideal time
+        let new_target = BigDecimal::parse_bytes(&self.target.to_string().as_bytes(), 10)
+            .expect("Bug: impossible")
+            * (BigDecimal::from(time_diff_seconds) / BigDecimal::from(target_seconds));
+
+        let new_target_str = new_target
+            .to_string()
+            .split('.')
+            .next()
+            .expect("Bug: Expected a decimal point")
+            .to_owned();
+        let new_target = U256::from_str_radix(&new_target_str, 10).expect("Bug: Impossible");
+
+        // clamp new_target to be within the range of 4 * self.target and self.target /
+        // 4
+        let new_target = if new_target < self.target / 4 {
+            self.target / 4
+        } else if new_target > self.target * 4 {
+            self.target * 4
+        } else {
+            new_target
+        };
+
+        // if the new target is more than the minimum target, set it to the minimum
+        // target
+        self.target = new_target.min(crate::MIN_TARGET);
     }
 
     pub fn rebuild_utxos(&mut self) {
