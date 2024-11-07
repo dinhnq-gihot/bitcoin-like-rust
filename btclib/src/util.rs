@@ -42,7 +42,7 @@ where
     Self: Sized,
 {
     fn load<I: Read>(reader: I) -> IoResult<Self>;
-    fn save<O: Write>(&self, reader: O) -> IoResult<()>;
+    fn save<O: Write>(&self, writer: O) -> IoResult<()>;
     fn save_to_file<P: AsRef<Path>>(&self, path: P) -> IoResult<()> {
         let file = File::create(&path)?;
         self.save(file)

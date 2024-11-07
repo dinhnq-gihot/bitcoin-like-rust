@@ -12,7 +12,10 @@ use {
             Result,
         },
         sha256::Hash,
-        util::MerkleRoot,
+        util::{
+            MerkleRoot,
+            Saveable,
+        },
         U256,
     },
     bigdecimal::BigDecimal,
@@ -20,9 +23,18 @@ use {
         DateTime,
         Utc,
     },
-    std::collections::{
-        HashMap,
-        HashSet,
+    std::{
+        collections::{
+            HashMap,
+            HashSet,
+        },
+        io::{
+            Error as IoError,
+            ErrorKind as IoErrorKind,
+            Read,
+            Result as IoResult,
+            Write,
+        },
     },
 };
 
@@ -311,5 +323,17 @@ impl Blockchain {
                 *marked = false;
             });
         }
+    }
+}
+
+impl Saveable for Blockchain {
+    fn load<I: Read>(reader: I) -> IoResult<Self> {
+        ciborium::de::from_reader(reader)
+            .map_err(|_| IoError::new(IoErrorKind::InvalidData, "Failed to deserialize Blockchain"))
+    }
+
+    fn save<O: Write>(&self, writer: O) -> IoResult<()> {
+        ciborium::ser::into_writer(self, writer)
+            .map_err(|_| IoError::new(IoErrorKind::InvalidData, "Failed to serialize Blockchain"))
     }
 }

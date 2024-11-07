@@ -9,8 +9,18 @@ use {
     crate::{
         error::*,
         sha256::Hash,
+        util::Saveable,
     },
-    std::collections::HashMap,
+    std::{
+        collections::HashMap,
+        io::{
+            Error as IoError,
+            ErrorKind as IoErrorKind,
+            Read,
+            Result as IoResult,
+            Write,
+        },
+    },
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -151,5 +161,17 @@ impl Block {
         let output_value = outputs.values().map(|output| output.value).sum::<u64>();
 
         Ok(input_value - output_value)
+    }
+}
+
+impl Saveable for Block {
+    fn load<I: Read>(reader: I) -> IoResult<Self> {
+        ciborium::de::from_reader(reader)
+            .map_err(|_| IoError::new(IoErrorKind::InvalidData, "Failed to deserialize Block"))
+    }
+
+    fn save<O: Write>(&self, writer: O) -> IoResult<()> {
+        ciborium::ser::into_writer(self, writer)
+            .map_err(|_| IoError::new(IoErrorKind::InvalidData, "Failed to serialize Block"))
     }
 }
