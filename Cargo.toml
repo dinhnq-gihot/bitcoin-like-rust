@@ -5,6 +5,6 @@ edition = "2021"
 
 [workspace]
 resolver = "2"
-members = ["lib", "miner", "node", "wallet"]
+members = ["btclib", "miner", "node", "wallet"]
 
 [dependencies]

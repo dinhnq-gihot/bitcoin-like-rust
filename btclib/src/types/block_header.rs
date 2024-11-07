@@ -1,5 +1,14 @@
-use crate::{sha256::Hash, util::MerkleRoot, U256};
-use chrono::{DateTime, Utc};
+use {
+    crate::{
+        sha256::Hash,
+        util::MerkleRoot,
+        U256,
+    },
+    chrono::{
+        DateTime,
+        Utc,
+    },
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BlockHeader {
@@ -34,5 +43,25 @@ impl BlockHeader {
 
     pub fn hash(&self) -> Hash {
         Hash::hash(self)
+    }
+
+    pub fn mine(&mut self, steps: usize) -> bool {
+        // if the block already matches target, return early
+        if self.hash().matches_target(self.target) {
+            return true;
+        }
+        for _ in 0..steps {
+            if let Some(new_nonce) = self.nonce.checked_add(1) {
+                self.nonce = new_nonce;
+            } else {
+                self.nonce = 0;
+                self.timestamp = Utc::now();
+            }
+            if self.hash().matches_target(self.target) {
+                return true;
+            }
+        }
+
+        false
     }
 }

@@ -30,7 +30,7 @@ pub struct TransactionInput {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransactionOutput {
-    pub value: u64,
+    pub value: u64, 
     pub unique_id: Uuid,
     pub pubkey: PublicKey,
 }

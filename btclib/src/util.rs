@@ -1,5 +1,18 @@
-use crate::sha256::Hash;
-use crate::types::transaction::Transaction;
+use {
+    crate::{
+        sha256::Hash,
+        types::transaction::Transaction,
+    },
+    std::{
+        fs::File,
+        io::{
+            Read,
+            Result as IoResult,
+            Write,
+        },
+        path::Path,
+    },
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct MerkleRoot(Hash);
@@ -21,5 +34,21 @@ impl MerkleRoot {
             layer = new_layer;
         }
         MerkleRoot(layer[0])
+    }
+}
+
+pub trait Saveable
+where
+    Self: Sized,
+{
+    fn load<I: Read>(reader: I) -> IoResult<Self>;
+    fn save<O: Write>(&self, reader: O) -> IoResult<()>;
+    fn save_to_file<P: AsRef<Path>>(&self, path: P) -> IoResult<()> {
+        let file = File::create(&path)?;
+        self.save(file)
+    }
+    fn load_from_file<P: AsRef<Path>>(path: P) -> IoResult<Self> {
+        let file = File::open(&path)?;
+        Self::load(file)
     }
 }

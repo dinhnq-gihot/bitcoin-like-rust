@@ -34,7 +34,7 @@ impl Block {
     pub fn verify_transactions(
         &self,
         predicted_block_height: u64,
-        utxos: &HashMap<Hash, TransactionOutput>,
+        utxos: &HashMap<Hash, (bool, TransactionOutput)>,
     ) -> Result<()> {
         let mut inputs: HashMap<Hash, TransactionOutput> = HashMap::new();
 
@@ -49,7 +49,9 @@ impl Block {
             let mut input_value = 0;
             let mut output_value = 0;
             for input in transaction.inputs.iter() {
-                let prev_output = utxos.get(&input.prev_tx_output_hash);
+                let prev_output = utxos
+                    .get(&input.prev_tx_output_hash)
+                    .map(|(_, output)| output);
                 if prev_output.is_none() {
                     return Err(BtcError::InvalidTransaction);
                 }
@@ -85,7 +87,7 @@ impl Block {
     pub fn verify_coinbase_transaction(
         &self,
         predicted_block_height: u64,
-        utxos: &HashMap<Hash, TransactionOutput>,
+        utxos: &HashMap<Hash, (bool, TransactionOutput)>,
     ) -> Result<()> {
         // coinbase transaction is the first transaction in the block
         let coinbase_transaction = &self.transactions[0];
@@ -113,7 +115,10 @@ impl Block {
         Ok(())
     }
 
-    pub fn calculate_miner_fees(&self, utxos: &HashMap<Hash, TransactionOutput>) -> Result<u64> {
+    pub fn calculate_miner_fees(
+        &self,
+        utxos: &HashMap<Hash, (bool, TransactionOutput)>,
+    ) -> Result<u64> {
         let mut inputs: HashMap<Hash, TransactionOutput> = HashMap::new();
         let mut outputs: HashMap<Hash, TransactionOutput> = HashMap::new();
 
@@ -122,7 +127,9 @@ impl Block {
             for input in transaction.inputs.iter() {
                 // input do not contain the values of the outputs so we need to match inputs to
                 // outputs
-                let prev_output = utxos.get(&input.prev_tx_output_hash);
+                let prev_output = utxos
+                    .get(&input.prev_tx_output_hash)
+                    .map(|(_, output)| output);
                 if prev_output.is_none() {
                     return Err(BtcError::InvalidTransaction);
                 }
