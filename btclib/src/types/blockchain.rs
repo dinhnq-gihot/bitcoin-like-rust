@@ -98,7 +98,7 @@ impl Blockchain {
                 return Err(BtcError::InvalidBlock);
             }
             // check if the block's merkle root is correct
-            let calculated_merkle_root = MerkleRoot::calculature(&block.transactions);
+            let calculated_merkle_root = MerkleRoot::calculate(&block.transactions);
             if block.header.merkle_root != calculated_merkle_root {
                 println!("invalid merkle root");
                 return Err(BtcError::InvalidMerkleRoot);

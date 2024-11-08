@@ -1,9 +1,16 @@
-use crate::sha256::Hash;
-use ecdsa::{
-    signature::{Signer, Verifier},
-    Signature as ECDSASignature, SigningKey, VerifyingKey,
+use {
+    crate::sha256::Hash,
+    ecdsa::{
+        signature::{
+            Signer,
+            Verifier,
+        },
+        Signature as ECDSASignature,
+        SigningKey,
+        VerifyingKey,
+    },
+    k256::Secp256k1,
 };
-use k256::Secp256k1;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Signature(pub ECDSASignature<Secp256k1>);
@@ -32,8 +39,10 @@ pub struct PublicKey(pub VerifyingKey<Secp256k1>);
 pub struct PrivateKey(#[serde(with = "signkey_serde")] pub SigningKey<Secp256k1>);
 
 mod signkey_serde {
-    use ecdsa::SigningKey;
-    use serde::Deserialize;
+    use {
+        ecdsa::SigningKey,
+        serde::Deserialize,
+    };
 
     pub fn serialize<S>(
         key: &SigningKey<super::Secp256k1>,

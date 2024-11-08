@@ -1,7 +1,12 @@
-use crate::U256;
-use serde::{Deserialize, Serialize};
-use sha256::digest;
-use std::fmt;
+use {
+    crate::U256,
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sha256::digest,
+    std::fmt,
+};
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub struct Hash(pub U256);

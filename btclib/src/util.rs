@@ -19,7 +19,7 @@ pub struct MerkleRoot(Hash);
 
 impl MerkleRoot {
     // calculature the merkle root of if a block's transaction
-    pub fn calculature(transactions: &[Transaction]) -> MerkleRoot {
+    pub fn calculate(transactions: &[Transaction]) -> MerkleRoot {
         let mut layer: Vec<Hash> = vec![];
         for transaction in transactions {
             layer.push(Hash::hash(transaction));
