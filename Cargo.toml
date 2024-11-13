@@ -7,4 +7,6 @@ edition = "2021"
 resolver = "2"
 members = ["btclib", "miner", "node", "wallet"]
 
-[dependencies]
+[workspace.dependencies]
+btclib = { path = "./btclib" }
+

@@ -21,6 +21,8 @@ hex = "0.4.3"
 rand = "0.8.5"
 thiserror = "1.0.59"
 bigdecimal = "0.4.5"
+spki = { version = "0.7.3", features = ["pem"] }
+tokio = { version = "1.37.0", features = ["full"] }
 
 [[bin]]
 name = "tx_gen"
@@ -29,3 +31,11 @@ path = "src/bin/tx_gen.rs"
 [[bin]]
 name = "tx_print"
 path = "src/bin/tx_print.rs"
+
+[[bin]]
+name = "block_gen"
+path = "src/bin/block_gen.rs"
+
+[[bin]]
+name = "block_print"
+path = "src/bin/block_print.rs"

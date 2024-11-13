@@ -3,6 +3,7 @@ pub mod error;
 pub mod sha256;
 pub mod types;
 pub mod util;
+pub mod network;
 
 extern crate ciborium;
 #[macro_use]
