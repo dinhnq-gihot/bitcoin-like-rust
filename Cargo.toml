@@ -8,3 +8,6 @@ resolver = "2"
 members = ["miner", "node", "wallet", "btclib"]
 
 [dependencies]
+btclib = { path = "./btclib" }
+uuid = { version = "1.8.0", features = ["v4", "serde"] }
+chrono = { version = "0.4.39", features = ["serde"] }
